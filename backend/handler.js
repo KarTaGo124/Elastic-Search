@@ -26,15 +26,33 @@ export async function crearProducto(event) {
   };
 }
 
-export async function obtenerProductos() {
-  const result = await dynamodb.scan({ TableName: TABLE_NAME }).promise();
+export async function obtenerProductos(event) {
+  const queryParams = event?.queryStringParameters || {};
+  const limit = Number(queryParams.limit) || 10;
+  const startKey = queryParams.startKey
+    ? JSON.parse(decodeURIComponent(queryParams.startKey))
+    : undefined;
+
+  const params = {
+    TableName: TABLE_NAME,
+    Limit: limit,
+    ExclusiveStartKey: startKey,
+  };
+
+  const result = await dynamodb.scan(params).promise();
 
   return {
     statusCode: 200,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(result.Items),
+    body: JSON.stringify({
+      items: result.Items,
+      nextKey: result.LastEvaluatedKey
+        ? encodeURIComponent(JSON.stringify(result.LastEvaluatedKey))
+        : null,
+    }),
   };
 }
+
 
 export async function buscarProducto(event) {
   const query = event.queryStringParameters?.q?.toLowerCase() || "";
