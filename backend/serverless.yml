@@ -1,42 +1,44 @@
 org: kartago
 service: productos-api
 
-frameworkVersion: '^4'
-
 provider:
   name: aws
   runtime: nodejs18.x
-  iam: 
-    role: arn:aws:iam::721114448578:role/LabRole
   region: us-east-1
-  stage: dev
   timeout: 10
+  memorySize: 1024
+  iam:
+    role: arn:aws:iam::721114448578:role/LabRole
 
 functions:
   crearProducto:
     handler: handler.crearProducto
     events:
-      - httpApi:
+      - http:
           path: /producto
           method: post
+          cors: true
 
   obtenerProductos:
     handler: handler.obtenerProductos
     events:
-      - httpApi:
+      - http:
           path: /producto
           method: get
+          cors: true
 
   buscarProducto:
     handler: handler.buscarProducto
     events:
-      - httpApi:
+      - http:
           path: /buscar
           method: get
+          cors: true
 
   eliminarProducto:
     handler: handler.eliminarProducto
     events:
-      - httpApi:
+      - http:
           path: /producto/{id}
           method: delete
+          cors: true

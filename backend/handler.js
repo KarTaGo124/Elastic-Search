@@ -1,18 +1,11 @@
-const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const {
-  DynamoDBDocumentClient,
-  PutCommand,
-  ScanCommand,
-  DeleteCommand
-} = require("@aws-sdk/lib-dynamodb");
+import AWS from "aws-sdk";
 
-const client = new DynamoDBClient({ region: "us-east-1" });
-const ddb = DynamoDBDocumentClient.from(client);
+const dynamodb = new AWS.DynamoDB.DocumentClient();
+const TABLE_NAME = "productos"; // Puedes cambiarlo si usas otra tabla
 
-const TABLE_NAME = "productos";
-
-module.exports.crearProducto = async (event) => {
+export async function crearProducto(event) {
   const producto = JSON.parse(event.body);
+
   const item = {
     product_id: producto.product_id,
     nombre: producto.nombre,
@@ -20,29 +13,29 @@ module.exports.crearProducto = async (event) => {
     precio: producto.precio,
   };
 
-  await ddb.send(new PutCommand({
+  await dynamodb.put({
     TableName: TABLE_NAME,
-    Item: item,
-  }));
+    Item: item
+  }).promise();
 
   return {
     statusCode: 201,
     body: JSON.stringify({ mensaje: "Producto creado", producto: item }),
   };
-};
+}
 
-module.exports.obtenerProductos = async () => {
-  const result = await ddb.send(new ScanCommand({ TableName: TABLE_NAME }));
+export async function obtenerProductos() {
+  const result = await dynamodb.scan({ TableName: TABLE_NAME }).promise();
 
   return {
     statusCode: 200,
     body: JSON.stringify(result.Items),
   };
-};
+}
 
-module.exports.buscarProducto = async (event) => {
+export async function buscarProducto(event) {
   const query = event.queryStringParameters?.q?.toLowerCase() || "";
-  const result = await ddb.send(new ScanCommand({ TableName: TABLE_NAME }));
+  const result = await dynamodb.scan({ TableName: TABLE_NAME }).promise();
 
   const filtrados = (result.Items || []).filter(
     (item) =>
@@ -54,18 +47,18 @@ module.exports.buscarProducto = async (event) => {
     statusCode: 200,
     body: JSON.stringify(filtrados),
   };
-};
+}
 
-module.exports.eliminarProducto = async (event) => {
+export async function eliminarProducto(event) {
   const { id } = event.pathParameters;
 
-  await ddb.send(new DeleteCommand({
+  await dynamodb.delete({
     TableName: TABLE_NAME,
     Key: { product_id: id },
-  }));
+  }).promise();
 
   return {
     statusCode: 200,
     body: JSON.stringify({ mensaje: "Producto eliminado", id }),
   };
-};
+}
