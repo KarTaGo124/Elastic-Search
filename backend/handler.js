@@ -1,13 +1,14 @@
 import AWS from "aws-sdk";
+import { v4 as uuidv4 } from "uuid";
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
-const TABLE_NAME = "productos"; // Puedes cambiarlo si usas otra tabla
+const TABLE_NAME = "productos";
 
 export async function crearProducto(event) {
   const producto = JSON.parse(event.body);
 
   const item = {
-    product_id: producto.product_id,
+    product_id: uuidv4(), // 👈 Se genera automáticamente
     nombre: producto.nombre,
     descripcion: producto.descripcion,
     precio: producto.precio,
@@ -20,6 +21,7 @@ export async function crearProducto(event) {
 
   return {
     statusCode: 201,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ mensaje: "Producto creado", producto: item }),
   };
 }
@@ -29,6 +31,7 @@ export async function obtenerProductos() {
 
   return {
     statusCode: 200,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(result.Items),
   };
 }
@@ -45,6 +48,7 @@ export async function buscarProducto(event) {
 
   return {
     statusCode: 200,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(filtrados),
   };
 }
@@ -59,6 +63,7 @@ export async function eliminarProducto(event) {
 
   return {
     statusCode: 200,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ mensaje: "Producto eliminado", id }),
   };
 }
