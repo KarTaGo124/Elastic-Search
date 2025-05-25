@@ -1,0 +1,39 @@
+service: productos-api
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: dev
+  timeout: 10
+
+functions:
+  crearProducto:
+    handler: handler.crearProducto
+    events:
+      - httpApi:
+          path: /producto
+          method: post
+
+  obtenerProductos:
+    handler: handler.obtenerProductos
+    events:
+      - httpApi:
+          path: /producto
+          method: get
+
+  buscarProducto:
+    handler: handler.buscarProducto
+    events:
+      - httpApi:
+          path: /buscar
+          method: get
+
+  eliminarProducto:
+    handler: handler.eliminarProducto
+    events:
+      - httpApi:
+          path: /producto/{id}
+          method: delete
