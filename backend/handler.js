@@ -4,11 +4,16 @@ import { v4 as uuidv4 } from "uuid";
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = "productos";
 
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*", // ✅ Para evitar errores de CORS
+};
+
 export async function crearProducto(event) {
   const producto = JSON.parse(event.body);
 
   const item = {
-    product_id: uuidv4(), // 👈 Se genera automáticamente
+    product_id: uuidv4(),
     nombre: producto.nombre,
     descripcion: producto.descripcion,
     precio: producto.precio,
@@ -16,12 +21,12 @@ export async function crearProducto(event) {
 
   await dynamodb.put({
     TableName: TABLE_NAME,
-    Item: item
+    Item: item,
   }).promise();
 
   return {
     statusCode: 201,
-    headers: { "Content-Type": "application/json" },
+    headers: corsHeaders,
     body: JSON.stringify({ mensaje: "Producto creado", producto: item }),
   };
 }
@@ -43,7 +48,7 @@ export async function obtenerProductos(event) {
 
   return {
     statusCode: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: corsHeaders,
     body: JSON.stringify({
       items: result.Items,
       nextKey: result.LastEvaluatedKey
@@ -65,7 +70,7 @@ export async function buscarProducto(event) {
 
   return {
     statusCode: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: corsHeaders,
     body: JSON.stringify(filtrados),
   };
 }
@@ -80,7 +85,7 @@ export async function eliminarProducto(event) {
 
   return {
     statusCode: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: corsHeaders,
     body: JSON.stringify({ mensaje: "Producto eliminado", id }),
   };
 }
