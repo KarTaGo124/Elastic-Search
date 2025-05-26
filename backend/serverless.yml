@@ -35,6 +35,22 @@ functions:
           method: get
           cors: true
 
+  buscarProductosFlexible:
+    handler: handler.buscarProductosFlexible
+    events:
+      - http:
+          path: /buscar/flexible
+          method: get
+          cors: true
+
+  autocompletar:
+    handler: handler.autocompletar
+    events:
+      - http:
+          path: /buscar/autocompletar
+          method: get
+          cors: true
+
   eliminarProducto:
     handler: handler.eliminarProducto
     events:

@@ -16,11 +16,9 @@ export async function fetchProductos(
 	if (startKey) url.searchParams.set("startKey", startKey);
 
 	const res = await fetch(url.toString());
-	console.log("Fetching products from:", url.toString());
 	if (!res.ok) throw new Error("Error al obtener productos");
 
 	const data = await res.json();
-
 	if (!data.items || !Array.isArray(data.items)) {
 		throw new Error("La respuesta del backend no contiene 'items'");
 	}
@@ -49,6 +47,28 @@ export async function buscarProductos(
 		items: data.items,
 		nextKey: data.nextKey || null,
 	};
+}
+
+export async function buscarProductosFlexible(
+	query: string
+): Promise<Producto[]> {
+	const url = new URL(`${BASE_URL}/buscar/flexible`);
+	url.searchParams.set("q", query);
+
+	const res = await fetch(url.toString());
+	if (!res.ok) throw new Error("Error al buscar productos (flexible)");
+
+	return res.json();
+}
+
+export async function autocompletarProductos(query: string): Promise<string[]> {
+	const url = new URL(`${BASE_URL}/buscar/autocompletar`);
+	url.searchParams.set("q", query);
+
+	const res = await fetch(url.toString());
+	if (!res.ok) throw new Error("Error al autocompletar productos");
+
+	return res.json();
 }
 
 export async function crearProducto(producto: Omit<Producto, "product_id">) {
