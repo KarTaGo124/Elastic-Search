@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
 	Producto,
 	fetchProductos,
@@ -62,6 +63,15 @@ export default function HomePage() {
 			<h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
 				🛒 Gestión de Productos
 			</h1>
+
+			<div className="text-center mb-6">
+				<Link
+					href="/buscar"
+					className="inline-block bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-900"
+				>
+					🔍 Ir al buscador
+				</Link>
+			</div>
 
 			<form
 				onSubmit={handleSubmit}
