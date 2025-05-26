@@ -1,3 +1,4 @@
+// data/generateData.js
 
 import AWS from "aws-sdk";
 import { faker } from "@faker-js/faker";
@@ -15,9 +16,9 @@ const ES_INDEX = "productos";
 const esClient = new Client({
   node: "http://3.90.171.235:9200",
   headers: {
-    'accept': 'application/vnd.elasticsearch+json; compatible-with=8',
-    'content-type': 'application/json'
-  }
+    accept: "application/vnd.elasticsearch+json; compatible-with=8",
+    "content-type": "application/vnd.elasticsearch+json; compatible-with=8",
+  },
 });
 
 function generarProducto() {
@@ -74,14 +75,13 @@ async function main() {
   const productos = Array.from({ length: TOTAL_ITEMS }, generarProducto);
   const batches = chunk(productos, BATCH_SIZE);
 
-  console.log(`📦 Insertando en ${batches.length} lotes de ${BATCH_SIZE}...
-`);
+  console.log(`📦 Insertando en ${batches.length} lotes de ${BATCH_SIZE}...\n`);
 
   for (let i = 0; i < batches.length; i++) {
     console.log(`🔄 Lote ${i + 1}/${batches.length}`);
     await insertarEnDynamoBatch(batches[i]);
     await insertarEnElasticBatch(batches[i]);
-    await new Promise((r) => setTimeout(r, 200));
+    await new Promise((r) => setTimeout(r, 200)); // Pequeña pausa
   }
 
   await esClient.indices.refresh({ index: ES_INDEX });
