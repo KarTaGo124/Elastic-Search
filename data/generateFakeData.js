@@ -12,7 +12,13 @@ const TOTAL_ITEMS = 10000;
 const BATCH_SIZE = 25;
 const ES_INDEX = "productos";
 
-const esClient = new Client({ node: "http://3.90.171.235:9200" });
+const esClient = new Client({
+  node: "http://3.90.171.235:9200",
+  headers: {
+    'accept': 'application/vnd.elasticsearch+json; compatible-with=8',
+    'content-type': 'application/json'
+  }
+});
 
 function generarProducto() {
   const product = {
