@@ -1,8 +1,14 @@
 import AWS from "aws-sdk";
 import { v4 as uuidv4 } from "uuid";
+import { Client } from "@elastic/elasticsearch";
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = "productos";
+
+// Configuración de Elasticsearch
+export const elasticClient = new Client({
+  node: "http://3.90.171.235:9200" // Cambiar por tu IP pública si es necesario
+});
 
 const corsHeaders = {
   "Content-Type": "application/json",
@@ -23,6 +29,12 @@ export async function crearProducto(event) {
     TableName: TABLE_NAME,
     Item: item,
   }).promise();
+
+  await elasticClient.index({
+    index: "productos",
+    id: item.product_id,
+    document: item,
+  });
 
   return {
     statusCode: 201,
@@ -99,9 +111,44 @@ export async function eliminarProducto(event) {
     Key: { product_id: id },
   }).promise();
 
+  await elasticClient.delete({
+    index: "productos",
+    id,
+  }).catch((err) => console.warn("Error al eliminar de Elasticsearch:", err));
+
   return {
     statusCode: 200,
     headers: corsHeaders,
     body: JSON.stringify({ mensaje: "Producto eliminado", id }),
+  };
+}
+
+export async function buscarProductosFlexible(event) {
+  const query = event.queryStringParameters?.q?.toLowerCase() || "";
+
+  const { hits } = await elasticClient.search({
+    index: "productos",
+    size: 10,
+    query: {
+      bool: {
+        should: [
+          { match_phrase: { nombre: query } },
+          { match_phrase: { descripcion: query } },
+          { fuzzy: { nombre: { value: query, fuzziness: "AUTO" } } },
+          { prefix: { nombre: query } }
+        ]
+      }
+    }
+  });
+
+  const productos = hits.hits.map((hit) => ({
+    product_id: hit._id,
+    ...hit._source
+  }));
+
+  return {
+    statusCode: 200,
+    headers: corsHeaders,
+    body: JSON.stringify(productos),
   };
 }

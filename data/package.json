@@ -4,6 +4,7 @@
   "type": "module",
   "main": "handler.js",
   "dependencies": {
+    "@elastic/elasticsearch": "^9.0.2",
     "aws-sdk": "^2.1524.0",
     "faker": "^5.5.3"
   }
