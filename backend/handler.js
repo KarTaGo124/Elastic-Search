@@ -58,9 +58,20 @@ export async function obtenerProductos(event) {
   };
 }
 
-export async function buscarProducto(event) {
+export async function buscarProductos(event) {
   const query = event.queryStringParameters?.q?.toLowerCase() || "";
-  const result = await dynamodb.scan({ TableName: TABLE_NAME }).promise();
+  const limit = Number(event.queryStringParameters?.limit) || 10;
+  const startKey = event.queryStringParameters?.startKey
+    ? JSON.parse(decodeURIComponent(event.queryStringParameters.startKey))
+    : undefined;
+
+  const scanParams = {
+    TableName: TABLE_NAME,
+    Limit: limit,
+    ExclusiveStartKey: startKey,
+  };
+
+  const result = await dynamodb.scan(scanParams).promise();
 
   const filtrados = (result.Items || []).filter(
     (item) =>
@@ -71,7 +82,12 @@ export async function buscarProducto(event) {
   return {
     statusCode: 200,
     headers: corsHeaders,
-    body: JSON.stringify(filtrados),
+    body: JSON.stringify({
+      items: filtrados,
+      nextKey: result.LastEvaluatedKey
+        ? encodeURIComponent(JSON.stringify(result.LastEvaluatedKey))
+        : null,
+    }),
   };
 }
 

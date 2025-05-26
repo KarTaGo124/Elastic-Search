@@ -31,6 +31,26 @@ export async function fetchProductos(
 	};
 }
 
+export async function buscarProductos(
+	query: string,
+	startKey?: string,
+	limit = 10
+): Promise<{ items: Producto[]; nextKey: string | null }> {
+	const url = new URL(`${BASE_URL}/buscar`);
+	url.searchParams.set("q", query);
+	url.searchParams.set("limit", limit.toString());
+	if (startKey) url.searchParams.set("startKey", startKey);
+
+	const res = await fetch(url.toString());
+	if (!res.ok) throw new Error("Error al buscar productos");
+
+	const data = await res.json();
+	return {
+		items: data.items,
+		nextKey: data.nextKey || null,
+	};
+}
+
 export async function crearProducto(producto: Omit<Producto, "product_id">) {
 	const res = await fetch(`${BASE_URL}/producto`, {
 		method: "POST",

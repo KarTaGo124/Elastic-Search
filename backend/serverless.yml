@@ -27,8 +27,8 @@ functions:
           method: get
           cors: true
 
-  buscarProducto:
-    handler: handler.buscarProducto
+  buscarProductos:
+    handler: handler.buscarProductos
     events:
       - http:
           path: /buscar
