@@ -53,7 +53,6 @@ export async function obtenerProductos(event) {
   };
 }
 
-
 export async function buscarProducto(event) {
   const query = event.queryStringParameters?.q?.toLowerCase() || "";
   const result = await dynamodb.scan({ TableName: TABLE_NAME }).promise();
