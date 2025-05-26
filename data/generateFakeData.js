@@ -1,5 +1,3 @@
-// data/generateData.js
-
 import AWS from "aws-sdk";
 import { faker } from "@faker-js/faker";
 import chunk from "lodash.chunk";
@@ -81,7 +79,7 @@ async function main() {
     console.log(`🔄 Lote ${i + 1}/${batches.length}`);
     await insertarEnDynamoBatch(batches[i]);
     await insertarEnElasticBatch(batches[i]);
-    await new Promise((r) => setTimeout(r, 200)); // Pequeña pausa
+    await new Promise((r) => setTimeout(r, 200));
   }
 
   await esClient.indices.refresh({ index: ES_INDEX });

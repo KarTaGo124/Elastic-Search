@@ -6,7 +6,7 @@ const dynamodb = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = "productos";
 
 const elasticClient = new Client({
-  node: "http://3.90.171.235:9200", // cambia por tu IP real
+  node: "http://3.90.171.235:9200",
   headers: {
     accept: "application/vnd.elasticsearch+json; compatible-with=8",
     "content-type": "application/vnd.elasticsearch+json; compatible-with=8",
@@ -18,7 +18,6 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
 };
 
-// Crear producto
 export async function crearProducto(event) {
   const producto = JSON.parse(event.body);
   const item = {
@@ -30,7 +29,6 @@ export async function crearProducto(event) {
 
   await dynamodb.put({ TableName: TABLE_NAME, Item: item }).promise();
 
-  // Indexar en Elasticsearch
   await elasticClient.index({
     index: "productos",
     id: item.product_id,
@@ -44,7 +42,6 @@ export async function crearProducto(event) {
   };
 }
 
-// Obtener productos paginados desde DynamoDB
 export async function obtenerProductos(event) {
   const queryParams = event?.queryStringParameters || {};
   const limit = Number(queryParams.limit) || 10;
@@ -72,7 +69,6 @@ export async function obtenerProductos(event) {
   };
 }
 
-// Buscar con lógica combinada
 export async function buscarProductosFlexible(event) {
   const query = event.queryStringParameters?.q?.toLowerCase() || "";
 
@@ -103,7 +99,6 @@ export async function buscarProductosFlexible(event) {
   };
 }
 
-// Eliminar producto
 export async function eliminarProducto(event) {
   const { id } = event.pathParameters;
 
@@ -112,7 +107,6 @@ export async function eliminarProducto(event) {
     Key: { product_id: id },
   }).promise();
 
-  // También elimina en Elasticsearch
   await elasticClient.delete({
     index: "productos",
     id,
